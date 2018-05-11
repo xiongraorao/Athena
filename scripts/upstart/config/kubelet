@@ -1,0 +1,38 @@
+# [kube-global-config]
+. /etc/kubernetes/config
+
+# [kubelet]
+
+###
+## kubernetes kubelet (minion) config
+#
+## The address for the info server to serve on (set to 0.0.0.0 or "" for all interfaces)
+KUBELET_ADDRESS="--address=${KUBELET_IP}"
+#
+## The port for the info server to serve on
+#KUBELET_PORT="--port=10250"
+#
+## You may leave this blank to use the actual hostname
+#KUBELET_HOSTNAME="--hostname-override=192.168.10.11"
+#
+## location of the api-server
+## COMMENT THIS ON KUBERNETES 1.8+
+KUBELET_API_SERVER="--api-servers=http://${MASTER_IP}:8080"
+#
+## pod infrastructure container
+KUBELET_POD_INFRA_CONTAINER="--pod-infra-container-image=docker.io/kubernetes/pause"
+#
+## Add your own!
+KUBELET_ARGS="--cgroup-driver=cgroupfs --cluster-dns=10.254.0.2 --experimental-bootstrap-kubeconfig=/etc/kubernetes/bootstrap.kubeconfig --kubeconfig=/etc/kubernetes/kubelet.kubeconfig --cert-dir=/etc/kubernetes/ssl --cluster-domain=cluster.local --hairpin-mode promiscuous-bridge --serialize-image-pulls=false"
+
+KUBELET_OPTS="
+  $KUBE_LOGTOSTDERR \
+  $KUBE_LOG_LEVEL \
+  $KUBELET_API_SERVER \
+  $KUBELET_ADDRESS \
+  $KUBELET_PORT \
+  $KUBELET_HOSTNAME \
+  $KUBE_ALLOW_PRIV \
+  $KUBELET_POD_INFRA_CONTAINER \
+  $KUBELET_ARGS
+"

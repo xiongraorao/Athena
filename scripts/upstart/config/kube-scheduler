@@ -1,0 +1,13 @@
+# [kube-global-config]
+. /etc/kubernetes/config
+
+# [kube-sheduler]
+
+KUBE_SCHEDULER_ARGS="--leader-elect=true --address=127.0.0.1"
+
+KUBE_SCHEDULER_OPTS="
+  $KUBE_LOGTOSTDERR \
+  $KUBE_LOG_LEVEL \
+  $KUBE_MASTER \
+  $KUBE_SCHEDULER_ARGS
+"

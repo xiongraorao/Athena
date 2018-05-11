@@ -1,0 +1,112 @@
+#!/bin/bash
+
+if [[ $# -lt 2 ]]
+then
+    echo "Usage: `basename $0`masterNode workNode1 workNode2 workNode3 ..."
+  exit 1
+fi
+
+args=($@)
+length=${#args[@]}
+echo "===args info:==="
+echo "1. masterNode: "
+echo ${args[0]}
+let length--;
+echo "2. workerNodes:(num=$length)"
+for i in `seq 1 ${length}`
+do
+    echo ${args[i]} 
+done
+
+CONF_DIR=./scripts/upstart/config
+
+echo ""
+echo "===start initialize configuration==="
+ETCD_CLUSTER=""
+ETCD_SERVERS=""
+for i in `seq 1 $length`
+do
+    ETCD_CLUSTER=${ETCD_CLUSTER}"infra"$i"=https://${args[i]}:2380,"
+    ETCD_SERVERS=${ETCD_SERVERS}"https://${args[i]}:2379,"
+done
+
+ETCD_CLUSTER=${ETCD_CLUSTER%,*}
+ETCD_SERVERS=${ETCD_SERVERS%,*}
+echo ${ETCD_CLUSTER}
+echo ${ETCD_SERVERS}
+
+# 1. initial etcd config configuration
+for i in `seq 1 $length`
+do
+    cp ${CONF_DIR}/etcd ${CONF_DIR}/etcd"._$i"
+    sed -i "s#\${ETCD_HOST}#infra$i#g" ${CONF_DIR}/etcd"._$i"
+    sed -i "s#\${LOCAL_IP}#${args[i]}#g" ${CONF_DIR}/etcd"._$i"
+    sed -i "s#\${ETCD_CLUSTER}#${ETCD_CLUSTER}#g" ${CONF_DIR}/etcd"._$i"
+done
+
+# 2. initial kube-apiserver configuration
+cp ${CONF_DIR}/kube-apiserver ${CONF_DIR}/kube-apiserver"._master"
+sed -i "s#\${MASTER_IP}#${args[0]}#g" ${CONF_DIR}/kube-apiserver"._master"
+sed -i "s#\${ETCD_SERVERS}#${ETCD_SERVERS}#g" ${CONF_DIR}/kube-apiserver"._master"
+
+# 3. initial kube-controller-manager configuration
+cp ${CONF_DIR}/kube-controller-manager ${CONF_DIR}/kube-controller-manager"._master"
+
+# 4. initial kube-scheduler configuration
+cp ${CONF_DIR}/kube-scheduler ${CONF_DIR}/kube-scheduler"._master"
+
+# 5. initial kubelet configuration
+for i in `seq 1 $length`
+do
+    cp ${CONF_DIR}/kubelet ${CONF_DIR}/kubelet"._$i"
+    sed -i "s#\${MASTER_IP}#${args[0]}#g" ${CONF_DIR}/kubelet"._$i"
+    sed -i "s#\${KUBELET_IP}#${args[i]}#g" ${CONF_DIR}/kubelet"._$i"
+done
+
+# 6. initial kube-proxy configuration
+for i in `seq 1 $length`
+do
+    cp ${CONF_DIR}/kube-proxy ${CONF_DIR}/kube-proxy"._$i"
+    sed -i "s#\${MASTER_IP}#${args[0]}#g" ${CONF_DIR}/kube-proxy"._$i"
+done
+
+# 7. initial global configuration
+cp ${CONF_DIR}/config ${CONF_DIR}/config"._global"
+sed -i "s#\${MASTER_IP}#${args[0]}#g" ${CONF_DIR}/config"._global"
+
+echo "===initialize configurations successfully!==="
+echo ""
+echo "===start depoly all configurations to nodes==="
+
+# 8. deploy all configurations to nodes
+
+# scp master configurations
+scp -o StrictHostKeyChecking=no ${CONF_DIR}/kube-apiserver"._master" root@${args[0]}:/etc/default/kube-apiserver
+scp -o StrictHostKeyChecking=no ${CONF_DIR}/kube-controller-manager"._master" root@${args[0]}:/etc/default/kube-controller-manager
+scp -o StrictHostKeyChecking=no ${CONF_DIR}/kube-scheduler"._master" root@${args[0]}:/etc/default/kube-scheduler
+
+# scp master node upstart scripts
+scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/kube-apiserver.conf root@${args[0]}:/etc/init/
+scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/kube-controller-manager.conf root@${args[0]}:/etc/init/
+scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/kube-scheduler.conf root@${args[0]}:/etc/init/
+
+for i in `seq 1 $length`
+do
+    # scp configurations
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/kubelet"._$i" root@${args[i]}:/etc/default/kubelet
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/kube-proxy"._$i" root@${args[i]}:/etc/default/kube-proxy
+    # if you assure all nodes' /etc/kubernetes directory exist, then uncomment next line
+    #scp -o StrictHostKeyChecking=no ${CONF_DIR}/config"._global" root@${args[i]}:/etc/kubernetes/config
+
+    # scp upstart scripts
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/etcd.conf root@${args[i]}:/etc/init/
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/kubelet.conf root@${args[i]}:/etc/init/
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/kube-proxy.conf root@${args[i]}:/etc/init/
+done
+
+# delete tmp files
+rm ${CONF_DIR}/*._*
+
+echo ""
+echo "=================="
+echo "Congratulations on you! Initialize all configurations successfully!"
