@@ -255,6 +255,11 @@ cd Athena
 ``` bash
 # 每个节点执行
 start etcd
+
+# 配置flanneld
+# ssh 到每个节点执行以下命令
+./flanneld_config.sh 192.168.1.5
+
 ```
 
 3. 关闭k8s
