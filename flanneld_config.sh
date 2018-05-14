@@ -20,6 +20,7 @@ etcdctl --endpoints=https://$1:2379 \
   --key-file=/etc/kubernetes/ssl/kubernetes-key.pem \
   mk /kube-ubuntu/network/config '{"Network":"172.30.0.0/16","SubnetLen":24,"Backend":{"Type":"vxlan"}}'
 
+restart flanneld
 if [ -f /run/flannel/docker ]
 then
     echo ". /run/flannel/docker" > /etc/default/docker
