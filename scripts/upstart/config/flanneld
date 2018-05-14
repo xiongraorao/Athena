@@ -1,0 +1,25 @@
+# Flanneld configuration options  
+
+# etcd url location.  Point this to the server where etcd runs
+FLANNEL_ETCD_ENDPOINTS=${ETCD_SERVERS}
+
+# etcd config key.  This is the configuration key that flannel queries
+# For address range assignment
+FLANNEL_ETCD_PREFIX="/kube-ubuntu/network"
+
+# Any additional options that you want to pass
+FLANNEL_OPTIONS="-etcd-cafile=/etc/kubernetes/ssl/ca.pem -etcd-certfile=/etc/kubernetes/ssl/kubernetes.pem -etcd-keyfile=/etc/kubernetes/ssl/kubernetes-key.pem"
+
+
+FLANNELD_OPTS="
+  -etcd-endpoints=${FLANNEL_ETCD_ENDPOINTS} \
+  -etcd-prefix=${FLANNEL_ETCD_PREFIX} \
+  $FLANNEL_OPTIONS
+"
+
+FLANNELD_ETCD_CA="
+  --endpoints=${FLANNEL_ETCD_ENDPOINTS} \
+  --ca-file=/etc/kubernetes/ssl/ca.pem \
+  --cert-file=/etc/kubernetes/ssl/kubernetes.pem \
+  --key-file=/etc/kubernetes/ssl/kubernetes-key.pem \
+"

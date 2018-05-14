@@ -74,11 +74,15 @@ done
 cp ${CONF_DIR}/config ${CONF_DIR}/config"._global"
 sed -i "s#\${MASTER_IP}#${args[0]}#g" ${CONF_DIR}/config"._global"
 
+# 8. initial flannel configuration
+cp ${CONF_DIR}/flanneld ${CONF_DIR}/flanneld"._global"
+sed -i "s#\${ETCD_SERVERS}#${ETCD_SERVERS}#g" ${CONF_DIR}/flanneld"._global"
+
 echo "===initialize configurations successfully!==="
 echo ""
 echo "===start depoly all configurations to nodes==="
 
-# 8. deploy all configurations to nodes
+# 9. deploy all configurations to nodes
 
 # scp master configurations
 scp -o StrictHostKeyChecking=no ${CONF_DIR}/kube-apiserver"._master" root@${args[0]}:/etc/default/kube-apiserver
@@ -93,15 +97,18 @@ scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/kube-scheduler.conf root@${a
 for i in `seq 1 $length`
 do
     # scp configurations
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/etcd"._$i" root@${args[i]}:/etc/default/etcd
     scp -o StrictHostKeyChecking=no ${CONF_DIR}/kubelet"._$i" root@${args[i]}:/etc/default/kubelet
     scp -o StrictHostKeyChecking=no ${CONF_DIR}/kube-proxy"._$i" root@${args[i]}:/etc/default/kube-proxy
-    # if you assure all nodes' /etc/kubernetes directory exist, then uncomment next line
-    #scp -o StrictHostKeyChecking=no ${CONF_DIR}/config"._global" root@${args[i]}:/etc/kubernetes/config
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/flanneld"._global" root@${args[i]}:/etc/default/flanneld
+    # if you are not assure all nodes' /etc/kubernetes directory exist, then comment next line
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/config"._global" root@${args[i]}:/etc/kubernetes/config
 
     # scp upstart scripts
     scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/etcd.conf root@${args[i]}:/etc/init/
     scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/kubelet.conf root@${args[i]}:/etc/init/
     scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/kube-proxy.conf root@${args[i]}:/etc/init/
+    scp -o StrictHostKeyChecking=no ${CONF_DIR}/../init/flanneld.conf root@${args[i]}:/etc/init/
 done
 
 # delete tmp files
