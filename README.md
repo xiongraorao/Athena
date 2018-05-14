@@ -175,6 +175,10 @@ apt-get install -y keepalived haproxy
 
 ## 2.3 安装步骤
 
+ssh到所有节点，创建如下两个目录
+mkdir -p /etc/kubernetes
+mkdir -p /etc/kubernetes/ssl
+
 **以下步骤均在master节点执行**
 
 ### 2.3.1 安装k8s相关组件
@@ -197,8 +201,6 @@ for ip in 3 6;do scp -r server/bin/{kube-proxy,kubelet} root@192.168.1.$ip:/usr/
 
 ### 2.3.2 生成CA文件
 
-[创建TLS证书和秘钥](https://jimmysong.io/kubernetes-handbook/practice/create-tls-and-secret-key.html)
-
 需要生成的CA证书和秘钥文件如下：
 - ca-key.pem
 - ca.pem
@@ -217,189 +219,17 @@ for ip in 3 6;do scp -r server/bin/{kube-proxy,kubelet} root@192.168.1.$ip:/usr/
 - kubectl：使用 ca.pem、admin-key.pem、admin.pem；
 - kube-controller-manager：使用 ca-key.pem、ca.pem
 
-1. 安装CFSSL
+详细步骤：
+[创建TLS证书和秘钥](https://jimmysong.io/kubernetes-handbook/practice/create-tls-and-secret-key.html)
+
+一键生成CA文件：
 
 ``` bash
-wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
-chmod +x cfssl_linux-amd64
-mv cfssl_linux-amd64 /usr/local/bin/cfssl 
+# 安装CFSSL
+./get_CFSSL.sh
 
-wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
-chmod +x cfssljson_linux-amd64
-mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
-
-wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
-chmod +x cfssl-certinfo_linux-amd64
-mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo
-```
-
-2. 创建CA
-
-
-``` bash
-
-# 1. 创建CA配置文件
-mkdir /root/ssl
-cd /root/ssl
-cfssl print-defaults config > config.json
-cfssl print-defaults csr > csr.json
-# 根据config.json文件的格式创建如下的ca-config.json文件
-# 过期时间设置成了 87600h
-cat > ca-config.json <<EOF
-{
-  "signing": {
-    "default": {
-      "expiry": "87600h"
-    },
-    "profiles": {
-      "kubernetes": {
-        "usages": [
-            "signing",
-            "key encipherment",
-            "server auth",
-            "client auth"
-        ],
-        "expiry": "87600h"
-      }
-    }
-  }
-}
-EOF
-
-# 2.创建CA证书签名请求
-touch ca-csr.json
-cat > ca-csr.json << EOF
-{
-  "CN": "kubernetes",
-  "key": {
-    "algo": "rsa",
-    "size": 2048
-  },
-  "names": [
-    {
-      "C": "CN",
-      "ST": "BeiJing",
-      "L": "BeiJing",
-      "O": "k8s",
-      "OU": "System"
-    }
-  ],
-    "ca": {
-       "expiry": "87600h"
-    }
-}
-EOF
-
-# 3. 生成 CA 证书和私钥
-cfssl gencert -initca ca-csr.json | cfssljson -bare ca
-ls ca*
-# ca-config.json  ca.csr  ca-csr.json  ca-key.pem  ca.pem
-
-# 4. 创建kubernetes证书签名请求文件
-# 注意将hosts字段的ip地址替换成实际的集群node的ip地址
-touch kubernetes-csr.json
-cat > kubernetes-csr.json << EOF
-{
-    "CN": "kubernetes",
-    "hosts": [
-      "127.0.0.1",
-      "192.168.1.3",
-      "192.168.1.5",
-      "192.168.1.6",
-      "10.254.0.1",
-      "kubernetes",
-      "kubernetes.default",
-      "kubernetes.default.svc",
-      "kubernetes.default.svc.cluster",
-      "kubernetes.default.svc.cluster.local"
-    ],
-    "key": {
-        "algo": "rsa",
-        "size": 2048
-    },
-    "names": [
-        {
-            "C": "CN",
-            "ST": "BeiJing",
-            "L": "BeiJing",
-            "O": "k8s",
-            "OU": "System"
-        }
-    ]
-}
-EOF
-
-# 5. 生成kubernetes 证书和私钥
-cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes kubernetes-csr.json | cfssljson -bare kubernetes
-
-ls kubernetes*
-# kubernetes.csr  kubernetes-csr.json  kubernetes-key.pem  kubernetes.pem
-
-# 6. 创建admin证书签名请求文件
-touch admin-csr.json
-cat > admin-csr.json << EOF
-{
-  "CN": "admin",
-  "hosts": [],
-  "key": {
-    "algo": "rsa",
-    "size": 2048
-  },
-  "names": [
-    {
-      "C": "CN",
-      "ST": "BeiJing",
-      "L": "BeiJing",
-      "O": "system:masters",
-      "OU": "System"
-    }
-  ]
-}
-EOF
-
-# 7. 生成admin证书签名请求文件
-cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes admin-csr.json | cfssljson -bare admin
-
-ls admin*
-# admin.csr  admin-csr.json  admin-key.pem  admin.pem
-
-# 8. 创建kube-proxy证书签名请求文件
-touch kube-proxy-csr.json
-cat > kube-proxy-csr.json << EOF
-{
-  "CN": "system:kube-proxy",
-  "hosts": [],
-  "key": {
-    "algo": "rsa",
-    "size": 2048
-  },
-  "names": [
-    {
-      "C": "CN",
-      "ST": "BeiJing",
-      "L": "BeiJing",
-      "O": "k8s",
-      "OU": "System"
-    }
-  ]
-}
-EOF
-
-# 9. 生成kube-proxy签名请求文件
-cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes  kube-proxy-csr.json | cfssljson -bare kube-proxy
-
-ls kube-proxy*
-# kube-proxy.csr  kube-proxy-csr.json  kube-proxy-key.pem  kube-proxy.pem
-
-# 10. 分发证书
-mkdir -p /etc/kubernetes/ssl
-cp *.pem /etc/kubernetes/ssl
-
-# 其他worker节点创建好/etc/kubernetes/ssl目录
-ssh some node
-mkdir -p /etc/kubernetes/ssl/
-for ip in 3 6;do scp /etc/kubernetes/ssl/* root@192.168.1.$ip:/etc/kubernetes/ssl/;done
-
+# 生成CA证书和秘钥文件
+./generate_ssl.sh 192.168.1.3 192.168.1.5 192.168.1.6_
 ```
 
 # 2.3.3 启动k8s
@@ -414,7 +244,7 @@ mkdir -p /etc/kubernetes/
 su root
 git clone https://github.com/xiongraorao/Athena.git
 cd Athena
-./config
+./config 192.168.1.5 192.168.1.3 192.168.1.5 192.168.1.6
 ```
 
 2. 启动k8s
