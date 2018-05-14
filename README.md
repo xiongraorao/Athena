@@ -226,10 +226,13 @@ for ip in 3 6;do scp -r server/bin/{kube-proxy,kubelet} root@192.168.1.$ip:/usr/
 
 ``` bash
 # 安装CFSSL
-./get_CFSSL.sh
+./get_cfssl.sh
 
 # 生成CA证书和秘钥文件
-./generate_ssl.sh 192.168.1.3 192.168.1.5 192.168.1.6_
+./generate_ssl.sh 192.168.1.3 192.168.1.5 192.168.1.6
+
+# 生成kubeconfig文件
+./kubeconfig.sh 192.168.1.5 192.168.1.3 192.168.1.5 192.168.1.6
 ```
 
 # 2.3.3 启动k8s

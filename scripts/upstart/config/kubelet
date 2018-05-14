@@ -17,7 +17,7 @@ KUBELET_ADDRESS="--address=${KUBELET_IP}"
 #
 ## location of the api-server
 ## COMMENT THIS ON KUBERNETES 1.8+
-KUBELET_API_SERVER="--api-servers=http://${MASTER_IP}:8080"
+#KUBELET_API_SERVER="--api-servers=http://${MASTER_IP}:8080"
 #
 ## pod infrastructure container
 KUBELET_POD_INFRA_CONTAINER="--pod-infra-container-image=docker.io/kubernetes/pause"
