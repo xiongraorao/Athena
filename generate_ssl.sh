@@ -46,7 +46,6 @@ cat > ca-config.json <<EOF
 EOF
 
 # 2.创建CA证书签名请求
-touch ca-csr.json
 cat > ca-csr.json << EOF
 {
   "CN": "kubernetes",
@@ -76,7 +75,6 @@ cfssl gencert -initca ca-csr.json | cfssljson -bare ca
 
 # 4. 创建kubernetes证书签名请求文件
 # 注意将hosts字段的ip地址替换成实际的集群node的ip地址
-touch kubernetes-csr.json
 cat > kubernetes-csr.json << EOF
 {
     "CN": "kubernetes",
@@ -112,7 +110,6 @@ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kube
 # kubernetes.csr  kubernetes-csr.json  kubernetes-key.pem  kubernetes.pem
 
 # 6. 创建admin证书签名请求文件
-touch admin-csr.json
 cat > admin-csr.json << EOF
 {
   "CN": "admin",
@@ -140,7 +137,6 @@ cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kube
 # admin.csr  admin-csr.json  admin-key.pem  admin.pem
 
 # 8. 创建kube-proxy证书签名请求文件
-touch kube-proxy-csr.json
 cat > kube-proxy-csr.json << EOF
 {
   "CN": "system:kube-proxy",
@@ -163,13 +159,12 @@ EOF
 
 # 9. 生成kube-proxy签名请求文件
 cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes  kube-proxy-csr.json | cfssljson -bare kube-proxy
-
 #ls kube-proxy*
 # kube-proxy.csr  kube-proxy-csr.json  kube-proxy-key.pem  kube-proxy.pem
 
 # 10. 分发证书
 mkdir pem
-cp *.pem pem
+cp ./*.pem pem/
 for i in `seq 0 $length`
 do
 	scp  -o StrictHostKeyChecking=no pem/* root@${args[i]}:/etc/kubernetes/ssl/

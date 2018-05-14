@@ -17,8 +17,9 @@ EOF
 
 mv token.csv /etc/kubernetes/
 cd /etc/kubernetes
-export KUBE_APISERVER="https://$1:6443"
+export KUBE_APISERVER="https://${args[0]}:6443"
 echo $KUBE_APISERVER
+
 # 1. 创建kubelet bootstrapping kubeconfig文件
 # 设置集群参数
 kubectl config set-cluster kubernetes \
@@ -82,9 +83,16 @@ kubectl config set-context kubernetes \
 # 设置默认上下文
 kubectl config use-context kubernetes
 
-# 3. 分发
+# 4. 分发
 for i in `seq 1 $length `
 do
     scp bootstrap.kubeconfig root@${args[$i]}:/etc/kubernetes/
 	scp kube-proxy.kubeconfig root@${args[$i]}:/etc/kubernetes/
 done
+
+# 5. 允许kubelet的签名请求
+cd /etc/kubernetes
+kubectl delete clusterrolebinding kubelet-bootstrap
+kubectl create clusterrolebinding kubelet-bootstrap \
+  --clusterrole=system:node-bootstrapper \
+  --user=kubelet-bootstrap

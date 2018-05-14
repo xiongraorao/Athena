@@ -260,6 +260,11 @@ start etcd
 # ssh 到每个节点执行以下命令
 ./flanneld_config.sh 192.168.1.5
 
+# ssh to master node
+cd /etc/kubernetes
+kubectl create clusterrolebinding kubelet-bootstrap \
+  --clusterrole=system:node-bootstrapper \
+  --user=kubelet-bootstrap
 ```
 
 3. 关闭k8s
