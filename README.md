@@ -223,6 +223,14 @@ for ip in 3 6;do scp -r server/bin/{kube-proxy,kubelet} root@192.168.1.$ip:/usr/
 wget https://pkg.cfssl.org/R1.2/cfssl_linux-amd64
 chmod +x cfssl_linux-amd64
 mv cfssl_linux-amd64 /usr/local/bin/cfssl 
+
+wget https://pkg.cfssl.org/R1.2/cfssljson_linux-amd64
+chmod +x cfssljson_linux-amd64
+mv cfssljson_linux-amd64 /usr/local/bin/cfssljson
+
+wget https://pkg.cfssl.org/R1.2/cfssl-certinfo_linux-amd64
+chmod +x cfssl-certinfo_linux-amd64
+mv cfssl-certinfo_linux-amd64 /usr/local/bin/cfssl-certinfo
 ```
 
 2. 创建CA
@@ -349,7 +357,13 @@ cat > admin-csr.json << EOF
 }
 EOF
 
-# 7. 创建kube-proxy证书签名请求文件
+# 7. 生成admin证书签名请求文件
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes admin-csr.json | cfssljson -bare admin
+
+ls admin*
+# admin.csr  admin-csr.json  admin-key.pem  admin.pem
+
+# 8. 创建kube-proxy证书签名请求文件
 touch kube-proxy-csr.json
 cat > kube-proxy-csr.json << EOF
 {
@@ -371,7 +385,13 @@ cat > kube-proxy-csr.json << EOF
 }
 EOF
 
-# 8. 分发证书
+# 9. 生成kube-proxy签名请求文件
+cfssl gencert -ca=ca.pem -ca-key=ca-key.pem -config=ca-config.json -profile=kubernetes  kube-proxy-csr.json | cfssljson -bare kube-proxy
+
+ls kube-proxy*
+# kube-proxy.csr  kube-proxy-csr.json  kube-proxy-key.pem  kube-proxy.pem
+
+# 10. 分发证书
 mkdir -p /etc/kubernetes/ssl
 cp *.pem /etc/kubernetes/ssl
 
@@ -400,12 +420,14 @@ cd Athena
 2. 启动k8s
 
 ``` bash
+# 每个节点执行
 start etcd
 ```
 
 3. 关闭k8s
 
 ``` bash
+# 每个节点执行
 stop etcd
 ```
 
