@@ -173,6 +173,8 @@ apt-get install -y keepalived haproxy ipvsadm
 1. [基于node本地安装](https://jimmysong.io/kubernetes-handbook/practice/using-glusterfs-for-persistent-storage.html)
 2. [基于k8s安装](https://github.com/gluster/gluster-kubernetes/blob/master/docs/setup-guide.md)
 
+[centos7安装glusterfs](http://www.cnblogs.com/jicki/p/5801712.html)
+
 ## 2.3 安装步骤
 
 ssh到所有节点，创建如下两个目录
@@ -278,6 +280,15 @@ ifconfig flannel.1
 # 主节点配置kubernetes cluster的各种参数
 ./kubeconfig.sh
 
+# 主节点查看kubelet请求
+
+kubectl get csr
+# csr-xxx
+
+# 主节点同意kublet 请求
+
+kubectl certificate approve csr-xxx
+
 ```
 
 3. 关闭k8s
@@ -358,6 +369,11 @@ cp nsenter /usr/local/bin
 # 4 部署应用
 
 ## 4.1 nginx安装
+
+```bash
+cd yaml/nginx/
+kubectl create -f .
+```
 
 ## 4.2 Mysql高可用安装
 
