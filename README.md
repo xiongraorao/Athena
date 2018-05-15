@@ -327,6 +327,21 @@ for ip in seq 3 5 6; do scp conf/keepalived-master.conf root@192.168.1.$ip:/etc/
 
 [helm管理插件](https://jimmysong.io/kubernetes-handbook/practice/helm.html)
 
+此处有个坑，要求每个node必须安装好socat和nsenter [github issue](https://github.com/kubernetes/helm/issues/966)
+解决如下：
+```bash
+# 1. install socat
+sudo apt-get update && sudo apt-get install socat
+
+# 2. install nsenter
+cd /tmp; 
+curl https://www.kernel.org/pub/linux/utils/util-linux/v2.25/util-linux-2.25.tar.gz | tar -zxf-; cd util-linux-2.25;
+sudo apt-get install autopoint autoconf libtool automake
+./configure --without-python --disable-all-programs --enable-nsenter --without-ncurses
+make nsenter
+cp nsenter /usr/local/bin
+```
+
 ## 3.6 Jenkins(gitlab)持续集成插件
 
 [jenkins持续集成](https://jimmysong.io/kubernetes-handbook/practice/jenkins-ci-cd.html)
@@ -349,4 +364,8 @@ for ip in seq 3 5 6; do scp conf/keepalived-master.conf root@192.168.1.$ip:/etc/
 ## 4.3 Zookeeper高可用安装
 
 ## 4.4 Kafka高可用安装
+
+# 5 常见错误
+
+1. [socat 和 nsenter not found, 执行 kuberctl  port_forward 会发生该错误](https://github.com/kubernetes/helm/issues/966)
 
