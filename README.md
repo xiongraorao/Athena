@@ -241,13 +241,23 @@ for ip in 3 6;do scp -r server/bin/{kube-proxy,kubelet} root@192.168.1.$ip:/usr/
 # ssh 到集群所有的节点上
 mkdir -p /etc/kubernetes/
 ```
-1. 生成配置文件
+1. 生成upstart脚本和相应配置文件
 
 ``` bash
 su root
 git clone https://github.com/xiongraorao/Athena.git
 cd Athena
 ./config 192.168.1.5 192.168.1.3 192.168.1.5 192.168.1.6
+```
+
+2. 生成SSL证书文件
+``` bash
+# 安装CFSSL软件(optional)
+./get_cfssl.sh
+
+# 生成证书
+./generate_ssl.sh 192.168.1.3 192.168.1.5 192.168.1.6
+
 ```
 
 2. 启动k8s
@@ -260,11 +270,14 @@ start etcd
 # ssh 到每个节点执行以下命令
 ./flanneld_config.sh 192.168.1.5
 
-# ssh to master node
-cd /etc/kubernetes
-kubectl create clusterrolebinding kubelet-bootstrap \
-  --clusterrole=system:node-bootstrapper \
-  --user=kubelet-bootstrap
+# 检查各个节点的docker daemon 是否完全重启成功
+# 检查docker0 和 flannl.1 的地址是否在同一个网段
+ifconfig docker0
+ifconfig flannel.1
+
+# 主节点配置kubernetes cluster的各种参数
+./kubeconfig.sh
+
 ```
 
 3. 关闭k8s
@@ -272,6 +285,7 @@ kubectl create clusterrolebinding kubelet-bootstrap \
 ``` bash
 # 每个节点执行
 stop etcd
+
 ```
 
 # 2.3.4 手动更新k8s
