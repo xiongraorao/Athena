@@ -164,7 +164,7 @@ which flanneld
 ### 2.2.3 keepalived 服务
 
 ``` bash
-apt-get install -y keepalived haproxy
+apt-get install -y keepalived haproxy ipvsadm
 ```
 [后续参考步骤](https://jimmysong.io/kubernetes-handbook/practice/master-ha.html)
 
@@ -307,9 +307,21 @@ stop etcd
 
 [heapster插件](https://jimmysong.io/kubernetes-handbook/practice/heapster-addon-installation.html)
 
-## 3.4 trafix负载均衡插件
+## 3.4 traefik负载均衡插件
 
 [trafix ingress安装步骤](https://jimmysong.io/kubernetes-handbook/practice/traefik-ingress-installation.html)
+
+traefik高可用的配置：
+```bash
+apt-get install keepalived ipvsadm
+vim /etc/keepalived/keepalived.conf
+
+# 配置virtual_server 和real_server, 保证virtual_server 是局域网中一个可用的ip
+
+for ip in seq 3 5 6; do scp conf/keepalived-master.conf root@192.168.1.$ip:/etc/keepalived/; done
+
+```
+> *注意，如果node的80端口被占用的话，会导致启动traefik失败*
 
 ## 3.5 Helm服务编排插件
 
@@ -323,6 +335,10 @@ stop etcd
 ## 3.7 Drone(github)持续集成插件
 
 [drone持续集成](https://jimmysong.io/kubernetes-handbook/practice/drone-ci-cd.html)
+
+## 3.8 Master节点高可用安装
+
+[keepalived+haproxy方案](https://jimmysong.io/kubernetes-handbook/practice/master-ha.html)
 
 # 4 部署应用
 
