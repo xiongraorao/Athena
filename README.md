@@ -29,8 +29,11 @@
 4. 其他文档
 - [Linux shell字符串截取与拼接](https://www.linuxidc.com/Linux/2015-03/115198.htm)
 - [linux shell 数组建立及使用技巧](https://www.cnblogs.com/chengmo/archive/2010/09/30/1839632.html)
-- []()
-
+- [Kubernetes vs Docker Swarm](https://platform9.com/blog/kubernetes-docker-swarm-compared/)
+- [巅峰对决之Swarm、Kubernetes、Mesos](http://dockone.io/article/1138)
+- [Docker Swarm和Kubernetes在大规模集群中的性能比较](http://dockone.io/article/1145)
+- [Docker Swarm vs Kubernetes](http://dockone.io/article/2441)
+- [Kubernetes为什么很重要？](http://cnodejs.org/topic/576a3305d0aa704d0728ac7e)
 
 # 2 安装运行
 ## 2.1 准备工作
@@ -175,15 +178,52 @@ apt-get install -y keepalived haproxy ipvsadm
 
 [centos7安装glusterfs](http://www.cnblogs.com/jicki/p/5801712.html)
 
+### 2.2.5 ansible 自动化工具
+
+ansible是一个自动化管理工具，可以一键在多机器上面执行命令，适合集群管理。安装ansible之前需要保证集群的SSH免密码链接
+
+```bash
+sudo apt-get install software-properties-common
+sudo apt-add-repository ppa:ansible/ansible
+sudo apt-get update
+sudo apt-get install ansible
+
+# 下面all组的该为真实的集群主机名
+cat > /etc/ansible/hosts << EOF
+[all]
+cloud03
+cloud05
+cloud06
+EOF
+
+# test,显示success说明已经ansible配置成功
+ansible all -m ping
+
+cloud05 | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+cloud03 | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+cloud06 | SUCCESS => {
+    "changed": false, 
+    "ping": "pong"
+}
+
+```
+
 ## 2.3 安装步骤
 
-ssh到所有节点，创建如下两个目录
-mkdir -p /etc/kubernetes
-mkdir -p /etc/kubernetes/ssl
+
+### 2.3.1 安装k8s相关组件
 
 **以下步骤均在master节点执行**
 
-### 2.3.1 安装k8s相关组件
+创建/etc/kubernetest/ssl目录，命令如下
+
+		ansible all -m shell -a "mkdir -p /etc/kubernetes/ssl"
 
 ``` bash
 # 可根据需要自行选择安装k8s的版本，注意k8s 1.8版本及以上的需要安装
@@ -233,44 +273,65 @@ for ip in 3 6;do scp -r server/bin/{kube-proxy,kubelet} root@192.168.1.$ip:/usr/
 # 生成CA证书和秘钥文件
 ./generate_ssl.sh 192.168.1.3 192.168.1.5 192.168.1.6
 
-# 生成kubeconfig文件
-./kubeconfig.sh 192.168.1.5 192.168.1.3 192.168.1.5 192.168.1.6
 ```
 
-# 2.3.3 启动k8s
+# 2.3.2 启动k8s
 
-``` bash
-# ssh 到集群所有的节点上
-mkdir -p /etc/kubernetes/
-```
 1. 生成upstart脚本和相应配置文件
 
 ``` bash
 su root
 git clone https://github.com/xiongraorao/Athena.git
 cd Athena
-./config 192.168.1.5 192.168.1.3 192.168.1.5 192.168.1.6
+./configure 192.168.1.5 192.168.1.3 192.168.1.5 192.168.1.6
 ```
 
 2. 生成SSL证书文件
+
+需要生成的CA证书和秘钥文件如下：
+- ca-key.pem
+- ca.pem
+- kubernetes-key.pem
+- kubernetes.pem
+- kube-proxy.pem
+- kube-proxy-key.pem
+- admin.pem
+- admin-key.pem
+
+使用的证书文件如下：
+- etcd：使用 ca.pem、kubernetes-key.pem、kubernetes.pem；
+- kube-apiserver：使用 ca.pem、kubernetes-key.pem、kubernetes.pem；
+- kubelet：使用 ca.pem；
+- kube-proxy：使用 ca.pem、kube-proxy-key.pem、kube-proxy.pem；
+- kubectl：使用 ca.pem、admin-key.pem、admin.pem；
+- kube-controller-manager：使用 ca-key.pem、ca.pem
+
+详细步骤：
+[创建TLS证书和秘钥](https://jimmysong.io/kubernetes-handbook/practice/create-tls-and-secret-key.html)
+
+一键生成CA文件：
+
 ``` bash
-# 安装CFSSL软件(optional)
+# 安装CFSSL
 ./get_cfssl.sh
 
-# 生成证书
+# 生成CA证书和秘钥文件
 ./generate_ssl.sh 192.168.1.3 192.168.1.5 192.168.1.6
 
 ```
 
-2. 启动k8s
+
+3. 启动k8s
 
 ``` bash
 # 每个节点执行
 start etcd
 
-# 配置flanneld
-# ssh 到每个节点执行以下命令
-./flanneld_config.sh 192.168.1.5
+# 生成kubeconfig文件
+./kubeconfig.sh 192.168.1.5 192.168.1.3 192.168.1.5 192.168.1.6
+
+# 配置flanneld, 后面接的参数可以是etcd 任一节点的IP
+ansible all -m shell -a "./flanneld_config.sh 192.168.1.5"
 
 # 检查各个节点的docker daemon 是否完全重启成功
 # 检查docker0 和 flannl.1 的地址是否在同一个网段
@@ -289,6 +350,27 @@ kubectl get csr
 
 kubectl certificate approve csr-xxx
 
+```
+注意：如果master 无法发现kubelet 的注册请求，请查看相应节点的kubelet 服务的运行状态
+```bash
+# 1. 查看kubelet节点运行状态
+status kubelet
+
+# 2. 如果显示stop/waiting
+start kubelet
+tailf /var/log/upstart/kubelet.log
+
+# 3. 检查node节点状态
+kubectl get nodes 
+
+# 4. 如果节点状态是NotReady
+kubectl describe nodes
+
+# 5. 检查docker daemon 服务
+cat /etc/default/docker # 查看DOCKER_OPTS变量是否配置正确，参考flanneld配置部分
+service docker restart
+docker info
+docker ps
 ```
 
 3. 关闭k8s
