@@ -23,9 +23,14 @@ etcdctl --endpoints=https://$1:2379 \
 restart flanneld
 if [ -f /run/flannel/docker ]
 then
-    echo ". /run/flannel/docker" > /etc/default/docker
-    echo DOCKER_OPTS=\"\${DOCKER_NETWORK_OPTIONS}\" >> /etc/default/docker 
-    service docker restart
-    echo "restart docker successfully!"
+    line=$(cat /run/flannel/docker | wc -l)
+    if [ $line==4 ]
+    then
+        echo ". /run/flannel/docker" > /etc/default/docker
+        echo DOCKER_OPTS=\"\${DOCKER_NETWORK_OPTIONS}\" >> /etc/default/docker 
+        service docker restart
+        echo "restart docker successfully!"
+    else
+        echo "flannel service is not ready, please check file '/run/flannel/docker' "
+    fi
 fi
-
