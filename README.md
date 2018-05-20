@@ -21,6 +21,7 @@
 - [linux-upstart](http://blog.fens.me/linux-upstart/)
 - [etcd集群部署的坑](https://www.cnblogs.com/breg/p/5728237.html)
 - [etcd集群安装配置](https://blog.csdn.net/god_wot/article/details/77854093)
+- [使用kube-proxy让外部网络访问K8S service的ClusterIP](https://blog.csdn.net/liyingke112/article/details/76022267)
 
 3. kubernetes中文社区
 - [kubeadm安装Kubernetes V1.10集群详细文档](https://www.kubernetes.org.cn/3808.html)
