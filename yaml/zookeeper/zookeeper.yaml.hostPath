@@ -76,7 +76,7 @@ spec:
         - containerPort: 3888
           name: leader-election
         volumeMounts:
-          - name: zk
+          - name: pv-zk
             mountPath: "/var/lib/zookeeper"
         env:
         - name : ZK_REPLICAS
@@ -138,15 +138,34 @@ spec:
             - "zkOk.sh"
           initialDelaySeconds: 10
           timeoutSeconds: 5
+      volumes:
+      - name: pv-zk
+        persistentVolumeClaim:
+          claimName: pvc-zk
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
-  volumeClaimTemplates:
-  - metadata:
-      name: zk
-    spec:
-      accessModes:
-      - ReadWriteOnce
-      resources:
-        requests:
-          storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-zk
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: /root/k8s-pv-data/k8s-zk
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: pvc-zk
+spec:
+  accessModes:
+    - ReadWriteMany
+  volumeName: pv-zk
+  resources:
+    requests:
+      storage: 10Gi

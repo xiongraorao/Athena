@@ -22,6 +22,7 @@
 - [etcd集群部署的坑](https://www.cnblogs.com/breg/p/5728237.html)
 - [etcd集群安装配置](https://blog.csdn.net/god_wot/article/details/77854093)
 - [使用kube-proxy让外部网络访问K8S service的ClusterIP](https://blog.csdn.net/liyingke112/article/details/76022267)
+- [k8s 安装 heketi服务动态使用GlusterFS](https://blog.csdn.net/wenwenxiong/article/details/79530631)
 
 3. kubernetes中文社区
 - [kubeadm安装Kubernetes V1.10集群详细文档](https://www.kubernetes.org.cn/3808.html)
@@ -35,6 +36,9 @@
 - [Docker Swarm和Kubernetes在大规模集群中的性能比较](http://dockone.io/article/1145)
 - [Docker Swarm vs Kubernetes](http://dockone.io/article/2441)
 - [Kubernetes为什么很重要？](http://cnodejs.org/topic/576a3305d0aa704d0728ac7e)
+- [持久卷PV和PVC的使用](http://www.cnblogs.com/boshen-hzb/p/6519902.html)
+- [CentOS 7 安装 GlusterFS](http://www.cnblogs.com/jicki/p/5801712.html)
+- [pv 和 pvc的绑定](https://docs.openshift.org/latest/install_config/persistent_storage/selector_label_binding.html)
 
 # 2 安装运行
 ## 2.1 准备工作
@@ -467,4 +471,8 @@ kubectl create -f .
 # 5 常见错误
 
 1. [socat 和 nsenter not found, 执行 kuberctl  port_forward 会发生该错误](https://github.com/kubernetes/helm/issues/966)
+
+# 6. 学习心得
+
+> k8s1.5之后的版本支持动态分配PV和PVC，使用storage class对象来完成动态PV和PVC的分配，对于有状态的应用是十分友好的，便于扩展。参考链接：[glusterfs 作为provisioner](https://jimmysong.io/kubernetes-handbook/practice/using-heketi-gluster-for-persistent-storage.html) [部署zookeeper](https://github.com/kubernetes/contrib/tree/master/statefulsets/zookeeper)
 

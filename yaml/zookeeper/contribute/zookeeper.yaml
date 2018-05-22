@@ -63,7 +63,7 @@ spec:
       containers:
       - name: k8szk
         imagePullPolicy: Always
-        image: xiongraorao/k8s-zookeeper:3.4.11
+        image: gcr.io/google_samples/k8szk:v3
         resources:
           requests:
             memory: "2Gi"
@@ -75,9 +75,6 @@ spec:
           name: server
         - containerPort: 3888
           name: leader-election
-        volumeMounts:
-          - name: zk
-            mountPath: "/var/lib/zookeeper"
         env:
         - name : ZK_REPLICAS
           value: "3"
@@ -138,15 +135,17 @@ spec:
             - "zkOk.sh"
           initialDelaySeconds: 10
           timeoutSeconds: 5
+        volumeMounts:
+        - name: datadir
+          mountPath: /var/lib/zookeeper
       securityContext:
         runAsUser: 1000
         fsGroup: 1000
   volumeClaimTemplates:
   - metadata:
-      name: zk
+      name: datadir
     spec:
-      accessModes:
-      - ReadWriteOnce
+      accessModes: [ "ReadWriteOnce" ]
       resources:
         requests:
           storage: 10Gi
