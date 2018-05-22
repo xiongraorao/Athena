@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-mysql-master
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  glusterfs:
+    endpoints: "glusterfs-cluster"
+    path: "mysql-master"
+    readOnly: false
+  persistentVolumeReclaimPolicy: Recycle
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-master
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeName: pv-mysql-master
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-mysql-slave
+spec:
+  capacity:
+    storage: 10Gi
+  accessModes:
+    - ReadWriteOnce
+  glusterfs:
+    endpoints: "glusterfs-cluster"
+    path: "mysql-slave"
+    readOnly: false
+  persistentVolumeReclaimPolicy: Recycle
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: mysql-slave
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeName: pv-mysql-slave
+  resources:
+    requests:
+      storage: 10Gi

@@ -23,6 +23,8 @@
 - [etcd集群安装配置](https://blog.csdn.net/god_wot/article/details/77854093)
 - [使用kube-proxy让外部网络访问K8S service的ClusterIP](https://blog.csdn.net/liyingke112/article/details/76022267)
 - [k8s 安装 heketi服务动态使用GlusterFS](https://blog.csdn.net/wenwenxiong/article/details/79530631)
+- [glusterfs + heketi实现kubernetes的共享存储](http://www.mamicode.com/info-detail-2258744.html)
+- [在kubernetes集群中部署mysql主从](http://blog.51cto.com/ylw6006/2071864)
 
 3. kubernetes中文社区
 - [kubeadm安装Kubernetes V1.10集群详细文档](https://www.kubernetes.org.cn/3808.html)
