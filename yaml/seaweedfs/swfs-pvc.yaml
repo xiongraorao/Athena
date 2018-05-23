@@ -1,0 +1,107 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-seaweedfs-master
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  glusterfs:
+    endpoints: "glusterfs-cluster"
+    path: "seaweedfs-master"
+    readOnly: false
+  persistentVolumeReclaimPolicy: Recycle
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: seaweedfs-master
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeName: pv-seaweedfs-master
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-data-swfs-0
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  glusterfs:
+    endpoints: "glusterfs-cluster"
+    path: "data-swfs-0"
+    readOnly: false
+  persistentVolumeReclaimPolicy: Recycle
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-swfs-0
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeName: pv-data-swfs-0
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-data-swfs-1
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  glusterfs:
+    endpoints: "glusterfs-cluster"
+    path: "data-swfs-1"
+    readOnly: false
+  persistentVolumeReclaimPolicy: Recycle
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-swfs-1
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeName: pv-data-swfs-1
+  resources:
+    requests:
+      storage: 500Gi
+---
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: pv-data-swfs-2
+spec:
+  capacity:
+    storage: 500Gi
+  accessModes:
+    - ReadWriteOnce
+  glusterfs:
+    endpoints: "glusterfs-cluster"
+    path: "data-swfs-2"
+    readOnly: false
+  persistentVolumeReclaimPolicy: Recycle
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: data-swfs-2
+spec:
+  accessModes:
+    - ReadWriteOnce
+  volumeName: pv-data-swfs-2
+  resources:
+    requests:
+      storage: 500Gi
