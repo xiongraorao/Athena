@@ -466,9 +466,35 @@ kubectl create -f .
 
 ## 4.2 Mysql高可用安装
 
-## 4.3 Zookeeper高可用安装
+```bash
+cd yaml/mysql/
+./gluster_mysql.sh
+kubectl create -f .
+```
 
+## 4.3 Zookeeper高可用安装
+默认三个节点，如果需要增加节点，需要手动修改gluster_zk.sh文件, 增加volumes,也需要手动增加pv和pvc
+
+```bash
+cd yaml/zookeeper/
+./gluster_zk.sh
+kubectl create -f .
+```
 ## 4.4 Kafka高可用安装
+默认三个节点，如果需要增加节点，需要手动修改gluster_kafka.sh文件, 增加volumes,也需要手动增加pv和pvc
+```bash
+cd yaml/kafka/
+./gluster_kafka.sh
+kubectl create -f .
+```
+## 4.5 seaweedfs高可用安装
+默认三个节点，如果需要增加节点，需要手动修改gluster_seaweedfs.sh文件, 增加volumes,也需要手动增加pv和pvc
+```bash
+cd yaml/seaweedfs/
+./gluster_seaweedfs.sh
+kubectl create -f .
+```
+
 
 # 5 常见错误
 
