@@ -195,6 +195,76 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
         echo "GRANT REPLICATION SLAVE ON *.* TO '$MYSQL_REPLICATION_USER'@'%' IDENTIFIED BY '$MYSQL_REPLICATION_PASSWORD' ;" | "${mysql[@]}" 
         #echo "ALTER USER '$MYSQL_REPLICATION_USER'@'%' IDENTIFIED BY '$MYSQL_REPLICATION_PASSWORD' ;" | "${mysql[@]}"
         echo 'FLUSH PRIVILEGES ;' | "${mysql[@]}"
+        
+        echo "start create poseidon talbles......."
+        camera_sql="CREATE DATABASE IF NOT EXISTS metadata default charset utf8 COLLATE utf8_general_ci;
+        USE metadata;
+        CREATE TABLE IF NOT EXISTS camera (
+          id int(10) unsigned NOT NULL AUTO_INCREMENT,
+          rtsp_addr varchar(250) NOT NULL,
+          topic varchar(250) DEFAULT 'company',
+          framerate int(11) DEFAULT '2',
+          grab tinyint(4) DEFAULT '1',
+          name varchar(250) DEFAULT NULL,
+          camera_id int(11) NOT NULL,
+          grab_choice varchar(45) DEFAULT 'rtsp',
+          brand varchar(45) DEFAULT NULL,
+          threshold float DEFAULT '80',
+          PRIMARY KEY (id)
+        ) ENGINE=InnoDB  DEFAULT CHARSET=utf8;"
+        
+        matched_sql="CREATE DATABASE IF NOT EXISTS metadata default charset utf8 COLLATE utf8_general_ci;
+        USE metadata;
+        CREATE TABLE  IF NOT EXISTS matched (
+          id int(11) NOT NULL AUTO_INCREMENT,
+          suspect_id varchar(250) DEFAULT NULL,
+          similarity float DEFAULT NULL,
+          matched_frame varchar(250) DEFAULT NULL,
+          matched_face varchar(250) DEFAULT NULL,
+          camera_name varchar(250) DEFAULT NULL,
+          camera_id int(11) DEFAULT NULL,
+          suspect_gender varchar(45) DEFAULT NULL,
+          timestamp datetime DEFAULT NULL,
+          PRIMARY KEY (id),
+          KEY camera (camera_id) USING BTREE,
+          KEY timestamp (timestamp) USING BTREE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+        
+        watchlist_sql="CREATE DATABASE IF NOT EXISTS metadata default charset utf8 COLLATE utf8_general_ci;
+        USE metadata;
+        CREATE TABLE  IF NOT EXISTS watchlist (
+          id int(10) unsigned NOT NULL AUTO_INCREMENT,
+          person_id varchar(250) DEFAULT NULL,
+          group_id varchar(250) DEFAULT NULL,
+          face longblob,
+          face_id varchar(250) DEFAULT NULL,
+          create_time timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+          feature json DEFAULT NULL,
+          status tinyint(4) DEFAULT '1',
+          PRIMARY KEY (id)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+        
+        faces_sql="CREATE  DATABASE IF NOT EXISTS metadata default charset utf8 COLLATE utf8_general_ci;
+        USE metadata;
+        CREATE TABLE  IF NOT EXISTS faces (
+          id int(11) NOT NULL AUTO_INCREMENT,
+          face varchar(45) DEFAULT NULL,
+          frame varchar(45) DEFAULT NULL,
+          timestamp datetime NOT NULL DEFAULT CURRENT_TIMESTAMP,
+          camera_id int(11) NOT NULL DEFAULT '0',
+          camera_name varchar(45) DEFAULT NULL ,
+          gender varchar(45) DEFAULT NULL,
+          PRIMARY KEY (id),
+          KEY gender (gender) USING BTREE,
+          KEY timestamp (timestamp) USING BTREE,
+          KEY camera (camera_id) USING BTREE
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8;"
+        echo "${camera_sql}" 
+		echo "${camera_sql}" | "${mysql[@]}"
+		echo "${watchlist_sql}" | "${mysql[@]}"
+		echo "${matched_sql}" | "${mysql[@]}"
+		echo "${faces_sql}" | "${mysql[@]}"
+
 
 		echo
 		for f in /docker-entrypoint-initdb.d/*; do
@@ -214,6 +284,7 @@ if [ "$1" = 'mysqld' -a -z "$wantHelp" ]; then
 		echo
 		echo 'MySQL init process done. Ready for start up.'
 		echo
+
 	fi
 fi
 

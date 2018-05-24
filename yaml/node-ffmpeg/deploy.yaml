@@ -1,0 +1,98 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-ffmpeg-master
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: node-ffmpeg
+    spec:
+      containers:
+      - name: node-ffmpeg
+        image: 192.168.1.5:5000/node-ffmpeg
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 3000
+          name: master
+        env:
+        - name: NODE_ENV
+          value: production
+        args: ["master"]
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-ffmpeg-slave
+spec:
+  replicas: 5
+  selector:
+    matchLabels:
+      app: node-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: node-ffmpeg
+    spec:
+      containers:
+      - name: node-ffmpeg
+        image: 192.168.1.5:5000/node-ffmpeg
+        imagePullPolicy: Always
+        env:
+        - name: NODE_ENV
+          value: production
+        args: ["slave"]
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-ffmpeg-process
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: node-ffmpeg
+    spec:
+      containers:
+      - name: node-ffmpeg
+        image: 192.168.1.5:5000/node-ffmpeg
+        imagePullPolicy: Always
+        ports:
+        - name: api
+          containerPort: 2313
+        env:
+        - name: NODE_ENV
+          value: production
+        args: ["process"]
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-ffmpeg-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: node-ffmpeg
+    spec:
+      containers:
+      - name: node-ffmpeg
+        image: 192.168.1.5:5000/node-ffmpeg
+        imagePullPolicy: Always
+        
+        env:
+        - name: NODE_ENV
+          value: production
+        args: ["api"]
