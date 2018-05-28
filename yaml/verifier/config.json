@@ -1,0 +1,46 @@
+{
+   "caffeParams" : {
+      "GPUDevices" : 1,
+      "modelPath" : "model/",
+      "threadsClassify" : ${CLASSIFY_THREADS},
+      "threadsDetect" : ${DETECT_THREADS},
+      "threadsFeature" : ${FEATURE_THREADS},
+      "threadsSearch" : ${SEARCH_THREADS}
+   },
+   "faceDataParams" : {
+      "serverURL" : "127.0.0.1:8989",
+      "switch" : 1,
+      "uploadTimepoint" : "3:0:0"
+   },
+   "httpParams" : {
+      "apiKey" : "",
+      "httpThreads" : 2,
+      "listenIP" : "0.0.0.0",
+      "maxRequests" : 20,
+      "port" : 33388
+   },
+   "logConfigParams" : {
+      "debugEnabled" : false,
+      "errorEnabled" : true,
+      "fatalEnabled" : false,
+      "infoEnabled" : true,
+      "traceEnabled" : false,
+      "verboseEnabled" : false,
+      "warningEnabled" : false
+   },
+   "searchToolParams" : {
+      "distance" : 250,
+      "redis_host": "${REDIS_HOST}",
+      "redis_port": ${REDIS_PORT},
+      "redis_db_id" : 5,
+      "redis_passwd" : "${REDIS_PWD}",
+      "searchThreshold" : 0.75,
+      "simThreshold" : 0.6600000262260437,
+      "topK" : 80
+   },
+   "zmqParams" : {
+      "maxRequests" : 20,
+      "zmqThreads" : 2,
+      "zmqaddr" : "tcp://127.0.0.1:5560"
+   }
+}

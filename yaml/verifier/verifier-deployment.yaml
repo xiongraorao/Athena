@@ -1,0 +1,40 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: verifier
+spec:
+  selector:
+    matchLabels:
+      app: verifier
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: verifier
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - cloud05
+                - cloud06
+      containers:
+      - image: harbor.oceanai.com.cn/detector/verifier-rest:gpu
+        imagePullPolicy: Always
+        name: verfier-redis
+        ports:
+        - containerPort: 33388
+        env:
+        - name: REDIS_HOST
+          value: "verifier-redis"
+        - name: REDIS_PORT
+          value: "6379"
+        runtime:
+        - nvidia
+
+

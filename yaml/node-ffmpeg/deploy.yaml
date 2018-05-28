@@ -14,7 +14,7 @@ spec:
     spec:
       containers:
       - name: node-ffmpeg
-        image: 192.168.1.5:5000/node-ffmpeg
+        image: harbor.oceanai.com.cn/finder_dev/node-ffmpeg:k8s
         imagePullPolicy: Always
         ports:
         - containerPort: 3000
@@ -29,7 +29,7 @@ kind: Deployment
 metadata:
   name: node-ffmpeg-slave
 spec:
-  replicas: 5
+  replicas: 3
   selector:
     matchLabels:
       app: node-ffmpeg
@@ -40,7 +40,7 @@ spec:
     spec:
       containers:
       - name: node-ffmpeg
-        image: 192.168.1.5:5000/node-ffmpeg
+        image: harbor.oceanai.com.cn/finder_dev/node-ffmpeg:k8s
         imagePullPolicy: Always
         env:
         - name: NODE_ENV
@@ -63,7 +63,7 @@ spec:
     spec:
       containers:
       - name: node-ffmpeg
-        image: 192.168.1.5:5000/node-ffmpeg
+        image: harbor.oceanai.com.cn/finder_dev/node-ffmpeg:k8s
         imagePullPolicy: Always
         ports:
         - name: api
@@ -89,7 +89,7 @@ spec:
     spec:
       containers:
       - name: node-ffmpeg
-        image: 192.168.1.5:5000/node-ffmpeg
+        image: harbor.oceanai.com.cn/finder_dev/node-ffmpeg:k8s
         imagePullPolicy: Always
         
         env:
