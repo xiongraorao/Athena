@@ -1,0 +1,52 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: poseidon-master
+  namespace: athena
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-dynamic-class
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: poseidon-slave
+  namespace: athena
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-dynamic-class
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: poseidon-process
+  namespace: athena
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-dynamic-class
+  resources:
+    requests:
+      storage: 10Gi
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: poseidon-api
+  namespace: athena
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-dynamic-class
+  resources:
+    requests:
+      storage: 10Gi
+---

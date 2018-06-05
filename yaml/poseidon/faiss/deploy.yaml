@@ -1,0 +1,55 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: faiss
+  namespace: athena
+spec:
+  selector:
+    matchLabels:
+      app: faiss
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: faiss
+    spec:
+      containers:
+      - image: harbor.oceanai.com.cn/finder_dev/faiss
+        imagePullPolicy: Always
+        name: faiss
+        ports:
+        - containerPort: 2333
+        volumeMounts:
+        - mountPath: /opt/searcher/indexFile
+          name: faiss-data
+      volumes:
+      - name: faiss-data
+        persistentVolumeClaim:
+          claimName: faiss-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: faiss-data
+  namespace: athena
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-dynamic-class
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: faiss-svc
+  namespace: athena
+spec:
+  ports:
+  - port: 2333
+    targetPort: 2333
+    name: http
+  selector:
+    app: faiss 

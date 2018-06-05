@@ -1,0 +1,130 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-ffmpeg-master
+  namespace: athena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: node-ffmpeg
+    spec:
+      containers:
+      - name: node-ffmpeg
+        image: harbor.oceanai.com.cn/finder_dev/node-ffmpeg:k8s
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /home/app/log
+          name: poseidon-master
+        ports:
+        - containerPort: 3000
+          name: master
+        env:
+        - name: NODE_ENV
+          value: dev
+        args: ["master"]
+      volumes:
+      - name: poseidon-master
+        persistentVolumeClaim:
+          claimName: poseidon-master
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-ffmpeg-slave
+  namespace: athena
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: node-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: node-ffmpeg
+    spec:
+      containers:
+      - name: node-ffmpeg
+        image: harbor.oceanai.com.cn/finder_dev/node-ffmpeg:k8s
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /home/app/log
+          name: poseidon-slave
+        env:
+        - name: NODE_ENV
+          value: dev
+        args: ["slave"]
+      volumes:
+      - name: poseidon-slave
+        persistentVolumeClaim:
+          claimName: poseidon-slave
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-ffmpeg-process
+  namespace: athena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: node-ffmpeg
+    spec:
+      containers:
+      - name: node-ffmpeg
+        image: harbor.oceanai.com.cn/finder_dev/node-ffmpeg:k8s
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /home/app/log
+          name: poseidon-process
+        ports:
+        - name: api
+          containerPort: 2313
+        env:
+        - name: NODE_ENV
+          value: dev
+        args: ["process"]
+      volumes:
+      - name: poseidon-process
+        persistentVolumeClaim:
+          claimName: poseidon-process
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: node-ffmpeg-api
+  namespace: athena
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: node-ffmpeg
+  template:
+    metadata:
+      labels:
+        app: node-ffmpeg
+    spec:
+      containers:
+      - name: node-ffmpeg
+        image: harbor.oceanai.com.cn/finder_dev/node-ffmpeg:k8s
+        imagePullPolicy: Always
+        volumeMounts:
+        - mountPath: /home/app/log
+          name: poseidon-api
+        env:
+        - name: NODE_ENV
+          value: dev
+        args: ["api"]
+      volumes:
+      - name: poseidon-api
+        persistentVolumeClaim:
+          claimName: poseidon-api
+

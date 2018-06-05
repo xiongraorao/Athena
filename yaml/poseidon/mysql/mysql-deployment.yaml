@@ -1,0 +1,73 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-master
+  namespace: athena
+spec:
+  selector:
+    matchLabels:
+      app: mysql-master
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql-master
+    spec:
+      containers:
+      - image: xiongraorao/mysql-master
+        imagePullPolicy: Always
+        name: mysql
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-master-data
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "oceanai"
+        - name: MYSQL_REPLICATION_USER
+          value: "repl"
+        - name: MYSQL_REPLICAITON_PASSWORD
+          value: "oceanai"
+      volumes:
+      - name: mysql-master-data
+        persistentVolumeClaim:
+          claimName: mysql-master
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: mysql-slave
+  namespace: athena
+spec:
+  selector:
+    matchLabels:
+      app: mysql-slave
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: mysql-slave
+    spec:
+      containers:
+      - image: xiongraorao/mysql-slave
+        imagePullPolicy: Always
+        name: mysql
+        volumeMounts:
+        - mountPath: /var/lib/mysql
+          name: mysql-slave-data
+        ports:
+        - containerPort: 3306
+        env:
+        - name: MYSQL_ROOT_PASSWORD
+          value: "oceanai"
+        - name: MYSQL_REPLICATION_USER
+          value: "repl"
+        - name: MYSQL_REPLICAITON_PASSWORD
+          value: "oceanai"
+      volumes:
+      - name: mysql-slave-data
+        persistentVolumeClaim:
+          claimName: mysql-slave

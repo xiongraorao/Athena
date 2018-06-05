@@ -1,0 +1,17 @@
+version: '3.1'
+
+services:
+  gismap:
+    image: harbor.oceanai.com.cn/finder_dev/gismap:v1.0
+    container_name: gismap
+    restart: always
+    hostname: gismap
+    ports:
+      - 8010:8080
+    deploy:
+      restart_policy:
+        condition: on-failure
+    environment:
+      GISMAP_PATH: /home/hadoop/xrr/mapcache/GisMap-gaode
+    volumes:
+        - /home/hadoop/xrr/mapcache/GisMap-gaode:/home/hadoop/xrr/mapcache/GisMap-gaode

@@ -1,0 +1,88 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: image-searcher
+  namespace: athena
+spec:
+  selector:
+    matchLabels:
+      app: image-searcher
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: image-searcher
+    spec:
+      containers:
+      - image: harbor.oceanai.com.cn/finder_dev/image-searcher
+        imagePullPolicy: Always
+        name: image-searcher
+        ports:
+        - containerPort: 28888
+        env:
+        - name: HOST_IP
+          value: "verifier-svc:33388"
+        volumeMounts:
+        - mountPath: /home/Antaeus/index
+          name: image-searcher-data
+      volumes:
+      - name: image-searcher-data
+        persistentVolumeClaim:
+          claimName: image-indexer-data
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: image-indexer
+  namespace: athena
+spec:
+  selector:
+    matchLabels:
+      app: image-indexer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: image-indexer
+    spec:
+      containers:
+      - image: harbor.oceanai.com.cn/finder_dev/image-indexer
+        imagePullPolicy: Always
+        name: image-indexer
+        env:
+        - name: ZOOKEEPER_CONNECT
+          value: "zk-0.zk-svc:2181,zk-1.zk-svc:2181,zk-2.zk-svc:2181/kafka"
+        volumeMounts:
+        - mountPath: /home/Antaeus/index
+          name: image-indexer-data
+      volumes:
+      - name: image-indexer-data
+        persistentVolumeClaim:
+          claimName: image-indexer-data
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: image-indexer-data
+  namespace: athena
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-dynamic-class
+  resources:
+    requests:
+      storage: 100Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: antaeus-svc
+spec:
+  ports:
+  - port: 28888
+    targetPort: 28888
+    name: http
+  selector:
+    app: image-searcher

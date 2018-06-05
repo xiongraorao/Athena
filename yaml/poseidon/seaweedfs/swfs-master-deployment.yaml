@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: seaweedfs-master
+  namespace: athena
+spec:
+  selector:
+    matchLabels:
+      app: seaweedfs-master
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: seaweedfs-master
+    spec:
+      containers:
+      - image: xiongraorao/seaweedfs
+        imagePullPolicy: Always
+        name: seaweedfs
+        volumeMounts:
+        - mountPath: /data
+          name: swfs-master
+        ports:
+        - containerPort: 9333
+        args: ['master']
+      volumes:
+      - name: swfs-master
+        persistentVolumeClaim:
+          claimName: seaweedfs-master
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: seaweedfs-master
+  namespace: athena
+spec:
+  storageClassName: nfs-dynamic-class3
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 1Gi

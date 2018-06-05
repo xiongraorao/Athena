@@ -1,0 +1,53 @@
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: swfs-pdb
+  namespace: athena
+spec:
+  selector:
+    matchLabels:
+      app: swfs
+  minAvailable: 2
+---
+apiVersion: apps/v1beta1
+kind: StatefulSet
+metadata:
+  name: swfs
+  namespace: athena
+spec:
+  serviceName: seaweedfs-slave
+  replicas: 3
+  selector:
+    matchLabels:
+      app: swfs
+  template:
+    metadata:
+      labels:
+        app: swfs
+    spec:
+      containers:
+      - image: xiongraorao/seaweedfs
+        imagePullPolicy: Always
+        name: seaweedfs
+        volumeMounts:
+        - mountPath: /data
+          name: data
+        env:
+        - name: MASTER_PORT_9333_TCP_ADDR
+          value: "seaweedfs-master"
+        - name: MASTER_PORT_9333_TCP_PORT
+          value: "9333"
+        ports:
+        - containerPort: 8080
+        args: ['volume']
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      storageClassName: "nfs-dynamic-class3"
+      resources:
+        requests:
+          storage: 500Gi

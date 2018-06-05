@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: verifier-redis
+  namespace: athena
+spec:
+  ports:
+  - port: 6379
+    targetPort: 6379
+    name: http
+  selector:
+    app: verifier-redis 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: verifier-svc
+  namespace: athena
+spec:
+  type: NodePort
+  ports:
+  - port: 33388
+    targetPort: 33388
+    name: http
+  selector:
+    app: verifier 
