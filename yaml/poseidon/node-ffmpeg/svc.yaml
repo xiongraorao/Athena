@@ -4,15 +4,19 @@ metadata:
   name: node-ffmpeg
   namespace: athena
 spec:
+  type: NodePort
   selector:
     app: node-ffmpeg
   ports:
   - name: master
     port: 3000
     targetPort: 3000
+    nodePort: 20007
   - name: api
     port: 2313
     targetPort: 2313
+    nodePort: 20008
   - name: stream
     port: 7777
     targetPort: 7777
+    nodePort: 20009

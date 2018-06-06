@@ -18,9 +18,11 @@ metadata:
   name: mysql-slave
   namespace: athena
 spec:
+  type: NodePort
   ports:
   - port: 3306
     targetPort: 3306
+    nodePort: 20006
     name: http
   selector:
     app: mysql-slave 
