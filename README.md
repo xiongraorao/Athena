@@ -214,6 +214,26 @@ cp nsenter /usr/local/bin
 ## 3.6 Jenkins(gitlab)持续集成插件
 
 [kubeasz-jenkins](https://github.com/xiongraorao/kubeasz/blob/master/docs/guide/jenkins.md)
+[jenkins持续集成](https://jimmysong.io/kubernetes-handbook/practice/jenkins-ci-cd.html)
+
+install:
+
+1. docker
+
+docker run \
+  -u root \
+  --rm \  
+  -d \ 
+  -p 8089:8080 \ 
+  -p 50000:50000 \ 
+  -v jenkins-data:/var/jenkins_home \ 
+  -v /var/run/docker.sock:/var/run/docker.sock \ 
+  jenkinsci/blueocean:1.5.0
+
+
+## 3.7 Drone(github)持续集成插件
+
+[drone持续集成](https://jimmysong.io/kubernetes-handbook/practice/drone-ci-cd.html)
 
 ## 3.8 Master节点高可用安装
 

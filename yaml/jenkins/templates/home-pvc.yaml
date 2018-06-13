@@ -18,6 +18,7 @@ spec:
   resources:
     requests:
       storage: {{ .Values.Persistence.Size | quote }}
+  volumeName: pv-jenkins
 {{- if .Values.Persistence.StorageClass }}
 {{- if (eq "-" .Values.Persistence.StorageClass) }}
   storageClassName: ""

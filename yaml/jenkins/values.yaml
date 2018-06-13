@@ -10,9 +10,11 @@
 
 Master:
   Name: jenkins-master
-  Image: "jenkins/jenkins"
-  ImageTag: "lts"
-  ImagePullPolicy: "IfNotPresent"
+  #Image: "jenkins/jenkins"
+  #ImageTag: "lts"
+  Image: "jenkinsci/blueocean"
+  ImageTag: "1.5.0"
+  ImagePullPolicy: "Always"
 # ImagePullSecret: jenkins
   Component: "jenkins-master"
   UseSecurity: true
@@ -84,11 +86,11 @@ Master:
 
   # List of plugins to be install during Jenkins master start
   InstallPlugins:
-    - kubernetes:1.6.3
+    - kubernetes:1.7.1
     - workflow-aggregator:2.5
     - workflow-job:2.21
     - credentials-binding:1.16
-    - git:3.9.0
+    - git:3.9.1
     - gitlab:1.5.6
   # Used to approve a list of groovy functions in pipelines used the script-security plugin. Can be viewed under /scriptApproval
   # ScriptApproval:
@@ -155,7 +157,7 @@ Persistence:
   ## A manually managed Persistent Volume and Claim
   ## Requires Persistence.Enabled: true
   ## If defined, PVC must be created manually before volume will be bound
-  # ExistingClaim:
+  ExistingClaim: jenkins
 
   ## jenkins data Persistent Volume Storage Class
   ## If defined, storageClassName: <storageClass>
@@ -164,7 +166,7 @@ Persistence:
   ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
   ##   GKE, AWS & OpenStack)
   ##
-  StorageClass: "nfs-dynamic-class"
+  # StorageClass: "nfs-dynamic-class"
 
   Annotations: {}
   AccessMode: ReadWriteOnce
