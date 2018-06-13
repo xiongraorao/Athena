@@ -28,16 +28,3 @@ spec:
       - name: swfs-master
         persistentVolumeClaim:
           claimName: seaweedfs-master
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: seaweedfs-master
-  namespace: athena
-spec:
-  storageClassName: nfs-dynamic-class3
-  accessModes:
-    - ReadWriteMany
-  resources:
-    requests:
-      storage: 1Gi

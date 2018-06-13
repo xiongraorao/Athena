@@ -29,19 +29,6 @@ spec:
           claimName: faiss-data
 ---
 apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: faiss-data
-  namespace: athena
-spec:
-  accessModes:
-    - ReadWriteOnce
-  storageClassName: nfs-dynamic-class
-  resources:
-    requests:
-      storage: 100Gi
----
-apiVersion: v1
 kind: Service
 metadata:
   name: faiss-svc
