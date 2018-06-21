@@ -213,22 +213,36 @@ cp nsenter /usr/local/bin
 
 ## 3.6 Jenkins(gitlab)持续集成插件
 
-[kubeasz-jenkins](https://github.com/xiongraorao/kubeasz/blob/master/docs/guide/jenkins.md)
-[jenkins持续集成](https://jimmysong.io/kubernetes-handbook/practice/jenkins-ci-cd.html)
+[kubeasz-jenkins](https://github.com/xiongraorao/kubeasz/blob/master/docs/guide/jenkins.md)  
+[jenkins持续集成](https://jimmysong.io/kubernetes-handbook/practice/jenkins-ci-cd.html)  
 
-install:
+### 安装:
 
-1. docker
+1. docker 方式安装
 
-docker run \
-  -u root \
-  --rm \  
-  -d \ 
-  -p 8089:8080 \ 
-  -p 50000:50000 \ 
-  -v jenkins-data:/var/jenkins_home \ 
-  -v /var/run/docker.sock:/var/run/docker.sock \ 
-  jenkinsci/blueocean:1.5.0
+``` bash
+git clone https://github.com/xiongraorao/Athena.git
+sh jenkins-docker-setup.sh
+```
+
+打开 jenkins 页面: http://localhost:8080
+
+2. k8s 安装(推荐)
+
+``` bash
+git clone https://github.com/xiongraorao/Athena.git
+
+# 创建静态PV和PVC(这里要具体看jenkins数据持久化的类型，这里使用的是NFS静态PV)
+kubectl create -f Athena/yaml/jenkins/jenkins-pv.yaml
+
+# helm 安装
+helm install Athena/yaml/jenkins --name jenkins 
+
+# 第一次启动耗时较长，大约5-10分钟
+
+```
+
+[jenkins 配置和使用说明](docs/jenkins.md)
 
 
 ## 3.7 Drone(github)持续集成插件
