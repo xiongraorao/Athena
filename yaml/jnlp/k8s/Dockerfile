@@ -1,4 +1,4 @@
-FROM jenkins/jnlp-slave:alpine
+FROM jenkins/jnlp-slave
 
 MAINTAINER xiongraorao@gmail.com
 
@@ -23,3 +23,10 @@ USER jenkins
 # warning: if you mount /home/jenkins to a persistent volume, 'config' will disappear
 COPY config /home/jenkins/.kube/config
 
+# 安装docker client 和docker-compose
+
+COPY docker /usr/local/bin/docker
+
+COPY docker-compose /usr/local/bin/docker-compose
+
+COPY libltdl.so.7.3.1 /usr/lib/x86_64-linux-gnu/libltdl.so.7

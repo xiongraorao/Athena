@@ -1,0 +1,28 @@
+apiVersion: extensions/v1beta1 # for versions before 1.7.0 use apps/v1beta1
+kind: Deployment
+metadata:
+  name: jenkins-deployment
+  namespace: jenkins
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins
+  template:
+    metadata:
+      labels:
+        app: jenkins
+    spec:
+      containers:
+      - name: jenkins
+        image: jenkinsci/blueocean:1.5.0
+        ports:
+        - containerPort: 8080
+        volumeMounts:
+        - mountPath: /var/run/docker.sock
+          name: docker-sock
+      volumes:
+      - name: docker-sock
+        hostPath:
+          path: /var/run/docker.sock
+        
