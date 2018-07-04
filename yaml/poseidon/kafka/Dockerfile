@@ -22,6 +22,7 @@ RUN set -x \
 
 COPY log4j.properties /opt/$KAFKA_DIST/config/
 COPY kafkaGenConfig.sh /opt/$KAFKA_DIST/bin
+COPY docker-entrypoint.sh /opt/$KAFKA_DIST/bin
 
 RUN set -x \
     && ln -s /opt/$KAFKA_DIST $KAFKA_HOME \
@@ -34,3 +35,4 @@ RUN set -x \
 RUN set -x \
     && chmod +x /opt/$KAFKA_DIST/bin/*
 
+ENTRYPOINT ["docker-entrypoint.sh"]

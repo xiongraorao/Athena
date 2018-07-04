@@ -77,15 +77,13 @@ spec:
         volumeMounts:
           - name: kafka
             mountPath: "/var/lib/kafka/data"
-        command:
-        - /bin/bash
-        - -c
-        - "/opt/kafka/bin/kafkaGenConfig.sh && /opt/kafka/bin/kafka-server-start.sh /opt/kafka/config/server.properties"
         env:
         - name: KAFKA_HEAP_OPTS
           value : "-Xmx512M -Xms512M"
         - name: KAFKA_OPTS
           value: "-Dlogging.level=DEBUG"
+        - name: ZK_HOST
+          value: "zk-0.zk-svc:2181,zk-1:zk-svc:2181,zk-2:zk-svc:2181"
         readinessProbe:
            tcpSocket:
              port: 9092
