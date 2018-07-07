@@ -9,6 +9,6 @@ else
 fi
 
 MY_ID=$((ORD+1))
-sed -i s"/broker.id=0/broker.id=$MY_ID/g" /opt/kafka/config/server.properties
+sed -i "s#broker.id=0#broker.id=$MY_ID#g" /opt/kafka/config/server.properties
 #sed -i s'/zookeeper.connect=localhost:2181/zookeeper.connect=zk-0.zk-svc:2181,zk-1.zk-svc:2181,zk-2.zk-svc:2181\/kafka/g' /opt/kafka/config/server.properties
-sed -i s'/zookeeper.connect=localhost:2181/zookeeper.connect=${ZK_HOST}\/kafka/g' /opt/kafka/config/server.properties
+sed -i "s#zookeeper.connect=localhost:2181#zookeeper.connect=${ZK_HOST}\/kafka#g" /opt/kafka/config/server.properties
