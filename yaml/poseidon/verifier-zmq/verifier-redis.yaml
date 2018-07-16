@@ -1,0 +1,29 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: verifier-redis-zmq
+  namespace: athena
+spec:
+  selector:
+    matchLabels:
+      app: verifier-redis-zmq
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: verifier-redis-zmq
+    spec:
+      containers:
+      - image: redis:latest
+        imagePullPolicy: Always
+        name: verifier-redis-zmq-yml
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+        ports:
+        - containerPort: 6379
+      volumes:
+      - name: redis-data
+        persistentVolumeClaim:
+          claimName: verifier-redis-yml

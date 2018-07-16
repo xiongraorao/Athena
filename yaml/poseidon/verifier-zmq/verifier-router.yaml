@@ -1,0 +1,26 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: verifier-router
+  namespace: athena
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: verifier-router
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: verifier-router
+    spec:
+      containers:
+      - image: harbor.oceanai.com.cn/detector/verifier-zmq-router-180531:gpu
+        imagePullPolicy: Always
+        name: verifier-zmq-router-yml
+        ports:
+        - containerPort: 5559
+          name: front
+        - containerPort: 5560
+          name: end

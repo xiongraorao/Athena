@@ -8,12 +8,22 @@ LABEL Description="This is a extend image base from jenkins/jnlp-slave which ins
 USER root
 
 # 安装 maven-3.3.9
-RUN wget http://mirrors.sonic.net/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz && \
+#RUN wget http://mirrors.sonic.net/apache/maven/maven-3/3.3.9/binaries/apache-maven-3.3.9-bin.tar.gz && \
+RUN wget http://192.168.1.3/mirrors/maven/apache-maven-3.3.9-bin.tar.gz && \
     tar -zxf apache-maven-3.3.9-bin.tar.gz && \
     mv apache-maven-3.3.9 /usr/local && \
     rm -f apache-maven-3.3.9-bin.tar.gz && \
     ln -s /usr/local/apache-maven-3.3.9/bin/mvn /usr/bin/mvn && \
     ln -s /usr/local/apache-maven-3.3.9 /usr/local/apache-maven
+
+# 安装 nodejs
+#RUN wget https://nodejs.org/dist/v8.11.3/node-v8.11.3-linux-x64.tar.xz && \
+RUN wget http://192.168.1.3/mirrors/nodejs/node-v8.11.3-linux-x64.tar.xz && \
+    tar -xvf node-v8.11.3-linux-x64.tar.xz && \
+    mv node-v8.11.3-linux-x64 /usr/local/nodejs && \
+    ln -s /usr/local/nodejs/bin/node /usr/bin/node && \
+    ln -s /usr/local/nodejs/lib/node_modules/npm/bin/npm-cli.js /usr/bin/npm && \
+    rm -f node-v8.11.3-linux-x64.tar.xz
 
 # 安装 kubernetes
 COPY kubectl /usr/local/bin/kubectl

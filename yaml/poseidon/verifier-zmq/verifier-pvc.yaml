@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: verifier-redis-yml
+  namespace: athena
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: nfs-dynamic-class
+  resources:
+    requests:
+      storage: 10Gi

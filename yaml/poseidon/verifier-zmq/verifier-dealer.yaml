@@ -1,0 +1,44 @@
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: verifier-dealer
+  namespace: athena
+spec:
+  replicas: 1
+  selector: 
+    matchLabels:
+      app: verifier-dealer
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      labels:
+        app: verifier-dealer
+    spec:
+      affinity:
+        nodeAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            nodeSelectorTerms:
+            - matchExpressions:
+              - key: kubernetes.io/hostname
+                operator: In
+                values:
+                - 192.168.1.5
+                - 192.168.1.11
+      containers:
+      - image: harbor.oceanai.com.cn/detector/verifier-zmq-dealer-180625:gpu
+        imagePullPolicy: Always
+        name: verifier-zmq-dealer-yml
+        env:
+        - name: REDIS_HOST
+          value: "verifier-redis-zmq"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: DETECT_THREADS
+          value: "15"
+        - name: ZMQ_ADDR
+          value: "verifier-router" 
+        - name: MAX_REQUESTS
+          value: "1000"
+        - name: FEATURE_THREADS
+          value: "4"
